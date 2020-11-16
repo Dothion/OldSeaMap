@@ -2,6 +2,13 @@
 
 [Fantasy Land](https://github.com/fantasyland/fantasy-land) 的 Python 实现。
 
-# LICENSE 
+## TODO
+
+- [] Functor, Applicative, Monad, Monoid
+- [] Identity, Maybe, Either, IO, Task
+- [] do notation
+- [] Setoid, Ord, Semigroup, Group, Bifunctor, Comonad, Writer, State, Cons, Nat, ...
+
+## LICENSE 
 
 使用 [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0.en.html) 协议开源。
