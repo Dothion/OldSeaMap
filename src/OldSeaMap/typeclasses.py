@@ -10,7 +10,7 @@ from typing import Callable, Protocol, Union, runtime_checkable
 
 from .type_vars import _a, _b
 
-_PossiblyCallable = Union[Callable, _a]
+_SometimesCallable = Union[Callable, _a]
 
 
 @runtime_checkable
@@ -34,7 +34,7 @@ class Applicative(Functor[_a]):
         raise NotImplementedError
 
     @classmethod
-    def of(cls, something: _PossiblyCallable[_a]) -> Applicative[_a]:
+    def of(cls, something: _SometimesCallable[_a]) -> Applicative[_a]:
         raise NotImplementedError
 
     def map(self: Applicative[_a], func: Callable[[_a], _b]) -> Applicative[_b]:
@@ -42,11 +42,11 @@ class Applicative(Functor[_a]):
 
 
 class Monad(Applicative[_a]):
-    def bind(self: Monad[_a], action: Callable[[_a], Monad[_b]]) -> Monad[_b]:
+    def bind(self: Monad[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
         raise NotImplementedError
 
     @classmethod
-    def of(cls, something: _PossiblyCallable[_a]) -> Monad[_PossiblyCallable[_a]]:
+    def of(cls, something: _SometimesCallable[_a]) -> Monad[_SometimesCallable[_a]]:
         raise NotImplementedError
 
     def map(self: Monad[_a], func: Callable[[_a], _b]) -> Monad[_b]:
