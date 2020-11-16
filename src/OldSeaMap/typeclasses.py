@@ -6,9 +6,11 @@
 
 from __future__ import annotations
 
-from typing import Callable, Protocol, runtime_checkable
+from typing import Callable, Protocol, Union, runtime_checkable
 
 from .type_vars import _a, _b
+
+_PossiblyCallable = Union[Callable, _a]
 
 
 @runtime_checkable
@@ -27,27 +29,28 @@ class Monoid(Protocol[_a]):
         raise NotImplementedError
 
 
-@runtime_checkable
 class Applicative(Functor[_a]):
     def ap(self: Applicative[_a], other: Applicative[Callable[[_a], _b]]) -> Applicative[_b]:
         raise NotImplementedError
 
     @classmethod
-    def of(cls, func: Callable[[_a], _b]) -> Applicative[Callable[[_a], _b]]:
+    def of(cls, something: _PossiblyCallable[_a]) -> Applicative[_a]:
         raise NotImplementedError
 
     def map(self: Applicative[_a], func: Callable[[_a], _b]) -> Applicative[_b]:
         return self.ap(self.of(func))
 
 
-@runtime_checkable
 class Monad(Applicative[_a]):
     def bind(self: Monad[_a], action: Callable[[_a], Monad[_b]]) -> Monad[_b]:
         raise NotImplementedError
 
     @classmethod
-    def of(cls, func: Callable[[_a], _b]) -> Monad[Callable[[_a], _b]]:
+    def of(cls, something: _PossiblyCallable[_a]) -> Monad[_PossiblyCallable[_a]]:
         raise NotImplementedError
+
+    def map(self: Monad[_a], func: Callable[[_a], _b]) -> Monad[_b]:
+        return self.bind(lambda x: self.of(func(x)))
 
     def ap(self: Monad[_a], other: Monad[Callable[[_a], _b]]) -> Monad[_b]:
         return self.bind(lambda x: other.bind(lambda y: self.of(x(y))))

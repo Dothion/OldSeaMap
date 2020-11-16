@@ -13,13 +13,15 @@ from pampy import match, _
 from .type_vars import _a, _b
 from .typeclasses import Monoid, Monad
 
-PossiblyMonoid = Union[Monoid[_a], _a]
+__all__ = ['Just', 'NOTHING']
+
+_PossiblyMonoid = Union[Monoid[_a], _a]
 
 
 class Maybe(Monad[_a], Monoid[_a]):
     @classmethod
-    def of(cls, func: Callable[[_a], _b]) -> Monad[Callable[[_a], _b]]:
-        return Just.of(func)
+    def of(cls, something: Callable[[_a], _b]) -> Monad[Callable[[_a], _b]]:
+        return Just(something)
 
     @classmethod
     def empty(cls) -> Monoid[_a]:
@@ -69,7 +71,7 @@ class Just(Maybe[_a]):
     def reserve(self: Just[_a]) -> _a:
         return self._reserve
 
-    def append(self: Just[PossiblyMonoid[_a]], other: Maybe[PossiblyMonoid[_a]]) -> Just[PossiblyMonoid[_a]]:
+    def append(self: Just[_PossiblyMonoid[_a]], other: Maybe[_PossiblyMonoid[_a]]) -> Just[_PossiblyMonoid[_a]]:
         if isinstance(other, Nothing):
             return self
         elif isinstance(other, Just):
@@ -87,8 +89,11 @@ class Just(Maybe[_a]):
 
 
 class Nothing(Maybe[_a]):
-    def append(self: Nothing, other: Maybe[PossiblyMonoid[_a]]) -> Maybe[PossiblyMonoid[_a]]:
+    def append(self: Nothing, other: Maybe[_PossiblyMonoid[_a]]) -> Maybe[_PossiblyMonoid[_a]]:
         return other
 
     def bind(self: Monad[_a], action: Callable[[_a], Monad[_b]]) -> Monad[_b]:
         return self
+
+
+NOTHING = Nothing()
