@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from abc import ABCMeta, abstractmethod
 from typing import Callable, Protocol, Union, runtime_checkable
 
 from funcy import curry
@@ -16,35 +17,39 @@ _SometimesCallable = Union[Callable, _a]
 
 
 @runtime_checkable
-class Functor(Protocol[_a]):
+class Functor(Protocol[_a], metaclass=ABCMeta):
+    @abstractmethod
     def map(self: Functor[_a], func: Callable[[_a], _b]) -> Functor[_b]:
-        raise NotImplementedError
+        ...
 
     def replace_with(self, something):
         return self.map(lambda x: something)
 
 
 @runtime_checkable
-class Monoid(Protocol[_a]):
+class Monoid(Protocol[_a], metaclass=ABCMeta):
     @classmethod
+    @abstractmethod
     def empty(cls) -> Monoid[_a]:
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def append(self: Monoid[_a], other: _a) -> Monoid[_a]:
-        raise NotImplementedError
+        ...
 
 
-# noinspection PyPep8Naming
-class Applicative(Functor[_a]):
+class Applicative(Functor[_a], metaclass=ABCMeta):
+    @abstractmethod
     def ap(self: Applicative[_a], other: Applicative[Callable[[_a], _b]]) -> Applicative[_b]:
-        raise NotImplementedError
+        ...
+
+    @classmethod
+    @abstractmethod
+    def of(cls, something: _SometimesCallable[_a]) -> Applicative[_a]:
+        ...
 
     def ap_with(self, other):
         return other.ap(self)
-
-    @classmethod
-    def of(cls, something: _SometimesCallable[_a]) -> Applicative[_a]:
-        raise NotImplementedError
 
     def map(self: Applicative[_a], func: Callable[[_a], _b]) -> Applicative[_b]:
         return self.ap(self.of(func))
@@ -64,13 +69,15 @@ class Applicative(Functor[_a]):
         return curry(_lift_an, n + 2)(cls)
 
 
-class Monad(Applicative[_a]):
+class Monad(Applicative[_a], metaclass=ABCMeta):
+    @abstractmethod
     def bind(self: Monad[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
-        raise NotImplementedError
+        ...
 
     @classmethod
+    @abstractmethod
     def of(cls, something: _SometimesCallable[_a]) -> Monad[_SometimesCallable[_a]]:
-        raise NotImplementedError
+        ...
 
     def map(self: Monad[_a], func: Callable[[_a], _b]) -> Monad[_b]:
         return self.bind(lambda x: self.of(func(x)))

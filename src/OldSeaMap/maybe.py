@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from typing import Callable, Union, Literal, Hashable
+from abc import ABCMeta
+from typing import Callable, Union
 
 from funcy import curry
 # noinspection PyProtectedMember
@@ -21,87 +22,85 @@ _PossiblyMonoid = Union[Monoid[_a], _a]
 _SometimesCallable = Union[Callable, _a]
 
 
-class Maybe(Monad[_a], Monoid[_a]):
+class Maybe(Monad[_a], Monoid[_a], metaclass=ABCMeta):
     @classmethod
-    def of(cls, something: _SometimesCallable[_a],
-           reserve: Literal['This', 'Other'] = 'This',
-           monadic_error_handling: bool = True) -> Maybe[_SometimesCallable[_a]]:
+    def of(cls, something: _SometimesCallable[_a]) -> Maybe[_SometimesCallable[_a]]:
         return Just(something)
 
     @classmethod
     def empty(cls) -> Maybe[_a]:
         return Nothing()
 
-    def append(self: Maybe[_a], other: _a) -> Maybe[_a]:
-        raise NotImplementedError
+    def __eq__(self, other):
+        """
+        Eq a => Eq (Maybe a)
+            equals (Just a) (Just b) = equals a b
+            equals Nothing  Nothing  = True
+            equals _        _        = False
+        """
+        return match((self, other),
+                     (Nothing, Nothing), True,
+                     (Just, Just), lambda x, y: x.value == y.value,
+                     _, False)
 
-    def bind(self: Monad[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
-        raise NotImplementedError
+    def __gt__(self, other):
+        """
+        Ord a => Ord (Maybe a)
+            gt (Just a) (Just b) = gt a b
+            gt (Just a) Nothing  = True
+            gt Nothing  (Just a) = False
+            gt Nothing  Nothing  = False
+        """
+        return match((self, other),
+                     (Nothing, Nothing), False,
+                     (Nothing, Just), False,
+                     (Just, Nothing), True,
+                     (Just, Just), lambda x, y: x.value > y.value)
+
+    def __hash__(self):  # return match(self,
+        #              Nothing, hash((Nothing, 'NOTHING')),
+        #              Just, hash((Just, self.value)))
+        if isinstance(self, Just):
+            return hash((Just, 'Just', self.value))
+        else:
+            return hash((Nothing, 'NOTHING'))
+
+    def __repr__(self):
+        # return match(self,
+        #              Nothing, '<Nothing>',
+        #              Just, lambda x: f'<Just {self.value}>')
+        if isinstance(self, Just):
+            return f'<Just {self.value}>'
+        else:
+            return '<Nothing>'
+
+    def __str__(self):
+        # return match(self,
+        #              Nothing, '<Nothing>',
+        #              Just, lambda x: f'<Just {self.value}>')
+        if isinstance(self, Just):
+            return f'{str(self.value)}'
+        else:
+            return 'Nothing'
 
 
 class Just(Maybe[_a]):
-    def __init__(self: Just[_a], something: _a,
-                 reserve: Literal['This', 'Other'] = 'This',
-                 monadic_error_handling: bool = True):
+    def __init__(self: Just[_a], something: _a):
         self._value = something if not isinstance(something, Callable) else curry(something)
-        self._reserve = reserve
-        self._monadic_error_handling = monadic_error_handling
 
     @property
     def value(self: Just[_a]) -> _a:
         return self._value
 
-    @property
-    def reserve(self: Just[_a]) -> _a:
-        return self._reserve
-
-    # noinspection PyBroadException
-    def map(self: Just[_a], func: Callable[[_a], _b]) -> Maybe[_b]:
-        if self._monadic_error_handling:
-            try:
-                return Just(curry(func)(self.value))
-            except Exception:
-                return NOTHING
-        else:
-            return Just(curry(func)(self.value))
-
-    def ap(self: Just[_a], other: Monad[Callable[[_a], _b]]) -> Monad[_b]:
-        return match(other,
-                     Nothing, NOTHING,
-                     Just, lambda x: self.map(x.value))
-
     def append(self: Just[_PossiblyMonoid[_a]], other: Maybe[_PossiblyMonoid[_a]]) -> Just[_PossiblyMonoid[_a]]:
         if isinstance(other, Nothing):
             return self
         elif isinstance(other, Just):
-            if isinstance(self.value, Monoid):
-                return self.value.append(other.value)
-            elif self.reserve != other.reserve:
-                raise ValueError
-            else:
-                return self if self.reserve == 'This' else other
-        else:
-            raise ValueError
+            return Just(self.value.append(other.value))
+        raise ValueError
 
     def bind(self: Just[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
         return func(self.value)
-
-    def __eq__(self: Just[_a], other: Maybe[_a]):
-        if isinstance(other, Just):
-            return self.value == other.value
-        return False
-
-    def __hash__(self: Just[Hashable[_a]]):
-        return hash((type(self), self._value))
-
-    def __gt__(self, other):
-        return match(other,
-                     Nothing, True,
-                     Just, lambda x: self.value > x.value,
-                     _, NotImplemented)
-
-    def __repr__(self):
-        return f'<Just {self.value}>'
 
 
 class Nothing(Maybe[_a]):
@@ -110,21 +109,6 @@ class Nothing(Maybe[_a]):
 
     def bind(self: Nothing, func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
         return self
-
-    def __eq__(self: Nothing, other: Maybe[_a]):
-        return isinstance(other, Nothing)
-
-    def __hash__(self):
-        return hash(type(self))
-
-    def __gt__(self, other):
-        return match(other,
-                     Just, False,
-                     Nothing, False,
-                     _, NotImplemented)
-
-    def __repr__(self):
-        return f'<Nothing>'
 
 
 NOTHING = Nothing()
