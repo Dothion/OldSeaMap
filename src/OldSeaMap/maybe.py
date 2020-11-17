@@ -17,18 +17,21 @@ from .typeclasses import Monoid, Monad
 __all__ = ['Just', 'NOTHING']
 
 _PossiblyMonoid = Union[Monoid[_a], _a]
+_SometimesCallable = Union[Callable, _a]
 
 
 class Maybe(Monad[_a], Monoid[_a]):
     @classmethod
-    def of(cls, something: Callable[[_a], _b]) -> Monad[Callable[[_a], _b]]:
+    def of(cls, something: _SometimesCallable[_a],
+           reserve: Literal['This', 'Other'] = 'This',
+           monadic_error_handling: bool = True) -> Maybe[_SometimesCallable[_a]]:
         return Just(something)
 
     @classmethod
-    def empty(cls) -> Monoid[_a]:
+    def empty(cls) -> Maybe[_a]:
         return Nothing()
 
-    def append(self: Monoid[_a], other: _a) -> Monoid[_a]:
+    def append(self: Maybe[_a], other: _a) -> Maybe[_a]:
         raise NotImplementedError
 
     def bind(self: Monad[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:

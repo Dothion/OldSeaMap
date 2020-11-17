@@ -18,6 +18,9 @@ class Functor(Protocol[_a]):
     def map(self: Functor[_a], func: Callable[[_a], _b]) -> Functor[_b]:
         raise NotImplementedError
 
+    def replace_with(self, something):
+        return self.map(lambda x: something)
+
 
 @runtime_checkable
 class Monoid(Protocol[_a]):
