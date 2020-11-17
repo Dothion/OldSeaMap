@@ -14,7 +14,8 @@ from funcy import curry
 from pampy import match, _
 
 from .type_vars import _a, _b
-from .typeclasses import Monoid, Monad
+from .typeclasses.monad import Monad
+from .typeclasses.monoid import Monoid
 
 __all__ = ['Just', 'NOTHING']
 

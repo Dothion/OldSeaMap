@@ -12,7 +12,7 @@ from typing import Callable, Union
 from funcy import curry
 
 from .type_vars import _a, _b
-from .typeclasses import Monad
+from .typeclasses.monad import Monad
 
 __all__ = ['Ok', 'Err']
 
