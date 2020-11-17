@@ -68,8 +68,7 @@ class Just(Maybe[_a]):
     def ap(self: Just[_a], other: Monad[Callable[[_a], _b]]) -> Monad[_b]:
         return match(other,
                      Nothing, NOTHING,
-                     Just, lambda x: self.map(x.value),
-                     _, NotImplemented)
+                     Just, lambda x: self.map(x.value))
 
     def append(self: Just[_PossiblyMonoid[_a]], other: Maybe[_PossiblyMonoid[_a]]) -> Just[_PossiblyMonoid[_a]]:
         if isinstance(other, Nothing):

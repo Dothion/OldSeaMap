@@ -27,9 +27,12 @@ class MaybeTestCase(unittest.TestCase):
     def test_applicative(self):
         self.assertEqual(Just(5).ap(Just.of(divide_by_five)), Just(1))
         self.assertEqual(Just(5).ap(Just.of(divide_by_zero)), NOTHING)
+        self.assertRaises(Exception, Just(5).ap, divide_by_five)
         self.assertEqual(Just(5).ap(NOTHING), NOTHING)
         self.assertEqual(NOTHING.ap(Just.of(divide_by_five)), NOTHING)
         self.assertEqual(NOTHING.ap(Just.of(NOTHING)), NOTHING)
+        self.assertEqual(Just.lift_a2(lambda x, y: x / y)(5)(5), Just(1))
+        self.assertEqual(Just.lift_an(2)(lambda x, y: x / y)(5)(0), NOTHING)
 
     def test_monad(self):
         self.assertEqual(Just(5).bind(partial(safe_div, y=5)), Just(1))

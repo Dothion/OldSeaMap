@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Callable, Protocol, Union, runtime_checkable
 
+from funcy import curry
+
 from .type_vars import _a, _b
 
 _SometimesCallable = Union[Callable, _a]
@@ -32,9 +34,13 @@ class Monoid(Protocol[_a]):
         raise NotImplementedError
 
 
+# noinspection PyPep8Naming
 class Applicative(Functor[_a]):
     def ap(self: Applicative[_a], other: Applicative[Callable[[_a], _b]]) -> Applicative[_b]:
         raise NotImplementedError
+
+    def ap_with(self, other):
+        return other.ap(self)
 
     @classmethod
     def of(cls, something: _SometimesCallable[_a]) -> Applicative[_a]:
@@ -42,6 +48,23 @@ class Applicative(Functor[_a]):
 
     def map(self: Applicative[_a], func: Callable[[_a], _b]) -> Applicative[_b]:
         return self.ap(self.of(func))
+
+    @classmethod
+    def lift_a2(cls, func):
+        def _lift_a2(c: cls, f, a, b):
+            return c.of(f).ap_with(c.of(a)).ap_with(c.of(b))
+
+        return curry(_lift_a2)(cls)(func)
+
+    @classmethod
+    def lift_an(cls, n):
+        def _lift_an(c: cls, f, *args):
+            f = c.of(f)
+            for arg in args:
+                f = f.ap_with(c.of(arg))
+            return f
+
+        return curry(_lift_an, n + 2)(cls)
 
 
 class Monad(Applicative[_a]):
