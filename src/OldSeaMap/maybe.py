@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Union, Literal
+from typing import Callable, Union, Literal, Hashable
 
 from funcy import curry
 from pampy import match, _
@@ -36,20 +36,6 @@ class Maybe(Monad[_a], Monoid[_a]):
 
     def bind(self: Monad[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
         raise NotImplementedError
-
-    def __gt__(self, other):
-        return match((self, other),
-                     (Nothing, Just), True,
-                     (Just, Just), lambda a, b: a.value > b.value,
-                     (Just, Nothing), False,
-                     (Nothing, Nothing), False,
-                     _, NotImplemented)
-
-    def __repr__(self):
-        if isinstance(self, Just):
-            return f'<Just {self.value}>'
-        elif isinstance(self, Nothing):
-            return f'<Nothing>'
 
 
 class Just(Maybe[_a]):
@@ -105,6 +91,18 @@ class Just(Maybe[_a]):
             return self.value == other.value
         return False
 
+    def __hash__(self: Just[Hashable[_a]]):
+        return hash((type(self), self._value))
+
+    def __gt__(self, other):
+        return match(other,
+                     Nothing, True,
+                     Just, lambda x: self.value > x.value,
+                     _, NotImplemented)
+
+    def __repr__(self):
+        return f'<Just {self.value}>'
+
 
 class Nothing(Maybe[_a]):
     def append(self: Nothing, other: Maybe[_PossiblyMonoid[_a]]) -> Maybe[_PossiblyMonoid[_a]]:
@@ -115,6 +113,18 @@ class Nothing(Maybe[_a]):
 
     def __eq__(self: Nothing, other: Maybe[_a]):
         return isinstance(other, Nothing)
+
+    def __hash__(self):
+        return hash(type(self))
+
+    def __gt__(self, other):
+        return match(other,
+                     Just, False,
+                     Nothing, False,
+                     _, NotImplemented)
+
+    def __repr__(self):
+        return f'<Nothing>'
 
 
 NOTHING = Nothing()
