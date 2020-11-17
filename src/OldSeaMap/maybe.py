@@ -46,10 +46,6 @@ class Maybe(Monad[_a], Monoid[_a]):
                      _, NotImplemented)
 
     def __repr__(self):
-        # return match(self,
-        #              Nothing, 'Nothing',
-        #              Just, f'Just<{self.value}>',
-        #              _, NotImplemented)
         if isinstance(self, Just):
             return f'<Just {self.value}>'
         elif isinstance(self, Nothing):
