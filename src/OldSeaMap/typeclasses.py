@@ -56,4 +56,4 @@ class Monad(Applicative[_a]):
         return self.bind(lambda x: self.of(func(x)))
 
     def ap(self: Monad[_a], other: Monad[Callable[[_a], _b]]) -> Monad[_b]:
-        return self.bind(lambda x: other.bind(lambda y: self.of(x(y))))
+        return other.bind(lambda y: self.bind(lambda x: self.of(y(x))))
