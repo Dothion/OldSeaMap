@@ -27,7 +27,6 @@ class MaybeTestCase(unittest.TestCase):
     def test_applicative(self):
         self.assertEqual(Just(5).ap(Just.of(divide_by_five)), Just(1))
         self.assertEqual(Just(5).ap(Just.of(divide_by_zero)), NOTHING)
-        self.assertEqual(Just(5).ap(divide_by_five), NotImplemented)
         self.assertEqual(Just(5).ap(NOTHING), NOTHING)
         self.assertEqual(NOTHING.ap(Just.of(divide_by_five)), NOTHING)
         self.assertEqual(NOTHING.ap(Just.of(NOTHING)), NOTHING)

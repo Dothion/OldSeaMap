@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Callable, Union, Literal, Hashable
 
 from funcy import curry
+# noinspection PyProtectedMember
 from pampy import match, _
 
 from .type_vars import _a, _b
