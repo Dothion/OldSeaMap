@@ -1,6 +1,6 @@
 import unittest
 
-from funcy import curry, partial
+from funcy import partial
 
 from OldSeaMap.maybe import Just, NOTHING
 
