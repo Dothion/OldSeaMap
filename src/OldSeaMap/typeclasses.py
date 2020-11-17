@@ -50,20 +50,17 @@ class Applicative(Functor[_a]):
         return self.ap(self.of(func))
 
     @classmethod
-    def lift_a2(cls, func):
-        def _lift_a2(c: cls, f, a, b):
-            return c.of(f).ap_with(c.of(a)).ap_with(c.of(b))
-
-        return curry(_lift_a2)(cls)(func)
-
-    @classmethod
-    def lift_an(cls, n):
+    def lift_a(cls, n):
         def _lift_an(c: cls, f, *args):
             f = c.of(f)
             for arg in args:
                 f = f.ap_with(c.of(arg))
             return f
 
+        if not isinstance(n, int):
+            return cls.lift_a(1)(n)
+        if n <= 0:
+            raise ValueError
         return curry(_lift_an, n + 2)(cls)
 
 
