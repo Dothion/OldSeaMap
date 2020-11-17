@@ -6,10 +6,7 @@ from OldSeaMap.maybe import Just, NOTHING
 
 
 def safe_div(x, y):
-    if y == 0:
-        return NOTHING
-    else:
-        return Just(x / y)
+    return NOTHING if y == 0 else Just(x / y)
 
 
 class MaybeTestCase(unittest.TestCase):
