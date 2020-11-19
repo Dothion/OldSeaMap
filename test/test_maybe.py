@@ -24,7 +24,6 @@ class MaybeTestCase(unittest.TestCase):
         self.assertEqual(Just(lambda x: x / 5).ap_with(Just.of(5)), Just(1))
         self.assertEqual(Just.lift_a(lambda x: x * 2)(5), Just(10))
         self.assertEqual(Just.lift_a(2)(lambda x, y: x / y)(5)(5), Just(1))
-        self.assertRaises(Exception, Just(5).ap, lambda x: x / 5)
         self.assertRaises(ZeroDivisionError, Just(5).ap, Just.of(lambda x: x / 0))
         self.assertRaises(ZeroDivisionError, Just.lift_a(2)(lambda x, y: x / y)(5), 0)
 
