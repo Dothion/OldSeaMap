@@ -33,9 +33,6 @@ class Result(Monad[_a], Monoid[_a], metaclass=ABCMeta):
     def of(cls, something: _SometimesCallable[_a]) -> Result[_SometimesCallable[_a]]:
         return Ok(something)
 
-    def bind(self: Monad[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
-        raise NotImplementedError
-
     def __eq__(self, other):
         """
         Eq a => Eq (Result a)
