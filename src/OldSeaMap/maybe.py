@@ -30,7 +30,7 @@ class Maybe(Monad[_a], Monoid[_a], metaclass=ABCMeta):
 
     @classmethod
     def empty(cls) -> Maybe[_a]:
-        return Nothing()
+        return NOTHING
 
     def __eq__(self, other):
         """
@@ -58,7 +58,8 @@ class Maybe(Monad[_a], Monoid[_a], metaclass=ABCMeta):
                      (Just, Nothing), True,
                      (Just, Just), lambda x, y: x.value > y.value)
 
-    def __hash__(self):  # return match(self,
+    def __hash__(self):
+        # return match(self,
         #              Nothing, hash((Nothing, 'NOTHING')),
         #              Just, hash((Just, self.value)))
         if isinstance(self, Just):

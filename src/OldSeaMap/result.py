@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+from abc import ABCMeta
 from typing import Callable, Union
 
 from funcy import curry
@@ -15,23 +16,29 @@ from pampy import match
 
 from .type_vars import _a, _b
 from .typeclasses.monad import Monad
+from .typeclasses.monoid import Monoid
 
 __all__ = ['Ok', 'Err']
 
+_PossiblyMonoid = Union[Monoid[_a], _a]
 _SometimesCallable = Union[Callable, _a]
 
 
-class Result(Monad[_a]):
-    def bind(self: Monad[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
-        raise NotImplementedError
+class Result(Monad[_a], Monoid[_a], metaclass=ABCMeta):
+    @classmethod
+    def empty(cls) -> Err[_a]:
+        return Err('Nothing Error')
 
     @classmethod
     def of(cls, something: _SometimesCallable[_a]) -> Result[_SometimesCallable[_a]]:
         return Ok(something)
 
+    def bind(self: Monad[_a], func: Callable[[_a], Monad[_b]]) -> Monad[_b]:
+        raise NotImplementedError
+
     def __eq__(self, other):
         """
-        Eq a => Eq (Maybe a)
+        Eq a => Eq (Result a)
             equals (Ok a)  (Ok b)  = equals a b
             equals (Err a) (Err b) = equals a b
             equals _       _       = False
@@ -44,7 +51,7 @@ class Result(Monad[_a]):
 
     def __gt__(self, other):
         """
-        Ord a => Ord (Maybe a)
+        Ord a => Ord (Result a)
             gt (Ok a)  (Ok b)  = gt a b
             gt _       (Err a) = error
             gt (Err a) _       = error
@@ -52,7 +59,8 @@ class Result(Monad[_a]):
         return match((self, other),
                      (Ok, Ok), lambda x, y: x.value > y.value)
 
-    def __hash__(self):  # return match(self,
+    def __hash__(self):
+        # return match(self,
         #              Err, hash((Err, 'Err')),
         #              Ok, hash((Ok, self.value)))
         if isinstance(self, Ok):
@@ -93,14 +101,24 @@ class Ok(Result[_a]):
         except Exception as e:
             return Err(str(e))
 
+    def append(self: Ok[_PossiblyMonoid[_a]], other: Result[_PossiblyMonoid[_a]]) -> Ok[_PossiblyMonoid[_a]]:
+        if isinstance(other, Err):
+            return self
+        elif isinstance(other, Ok):
+            return Ok(self.value.append(other.value))
+        raise ValueError
+
 
 class Err(Result[_a]):
     def __init__(self, errmsg: str):
         self._errmsg = errmsg
 
-    def bind(self: Err[_a], func: Callable[[_a], Result[_b]]) -> Err[_a]:
-        return self
-
     @property
     def errmsg(self):
         return self._errmsg
+
+    def bind(self: Err[_a], func: Callable[[_a], Result[_b]]) -> Err[_a]:
+        return self
+
+    def append(self: Err[_PossiblyMonoid[_a]], other: Result[_PossiblyMonoid[_a]]) -> Result[_PossiblyMonoid[_a]]:
+        return other

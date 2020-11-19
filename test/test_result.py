@@ -35,6 +35,9 @@ class ResultTestCase(unittest.TestCase):
         self.assertEqual(ERR.bind(partial(safe_div, y=5)), ERR)
         self.assertEqual(ERR.bind(partial(safe_div, y=0)), ERR)
 
+    def test_monoid(self):
+        ...
+
 
 if __name__ == '__main__':
     unittest.main()
