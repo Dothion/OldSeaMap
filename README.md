@@ -9,6 +9,8 @@
 - [ ] do notation
 - [ ] Setoid, Ord, Semigroup, Group, Bifunctor, Comonad, Writer, State, Cons, Nat, ...
 
+![](dependencies.svg)
+
 ## LICENSE 
 
 使用 [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0.en.html) 协议开源。
