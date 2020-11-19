@@ -7,7 +7,7 @@
 - [ ] Functor, Applicative, Monad, Monoid
 - [ ] Identity, Maybe, Either, IO, Task
 - [ ] do notation
-- [ ] Setoid, Ord, Semigroup, Group, Bifunctor, Comonad, Writer, State, Cons, Nat, ...
+- [ ] Semigroup, Group, Bifunctor, Comonad, Writer, State, ...
 
 ## LICENSE 
 
