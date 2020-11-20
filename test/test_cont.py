@@ -10,7 +10,7 @@ class ContTestCase(unittest.TestCase):
         self.assertEqual(Cont(8).run(identity), 8)
 
     def test_call_cc(self):
-        cond = lambda k, a, b: a if k else b  # !No short circuit eval
+        cond = lambda k, a, b: a if k else b  # !! No short circuit eval
         func1 = lambda x: call_cc(lambda ext: ext(-1) if x == 5 else Cont(5))
         func2 = (lambda x: call_cc(
             lambda exit1: (
