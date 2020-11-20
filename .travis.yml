@@ -7,7 +7,7 @@ branches:
   only:
   - master
 
-env: PATH=src/:$PATH
+env: PYTHONPATH=src/:PYTHONPATH
 
 install:
   - pip install -r requirements.txt
