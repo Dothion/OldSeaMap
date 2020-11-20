@@ -1,5 +1,7 @@
 # 古航海图 Old Sea Map <img align="right" src="https://s3.ax1x.com/2020/11/16/DEQtaR.png" height="50"/>
 
+[![Build Status](https://travis-ci.com/Dothion/OldSeaMap.svg?branch=master)](https://travis-ci.com/Dothion/OldSeaMap)
+
 几种函数式编程方法的 Python 实现。
 
 ## TODO
