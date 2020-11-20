@@ -7,12 +7,12 @@ branches:
   only:
   - master
 
-env: PYTHONPATH=src/:PYTHONPATH
+env: PYTHONPATH=./src/:PYTHONPATH
 
 install:
   - pip install -r requirements.txt
 
 script:
-  - python -m unittest test/test_maybe.py
-  - python -m unittest test/test_result.py
-  - python -m unittest test/test_cont.py
+  - python -m unittest ./test/test_maybe.py
+  - python -m unittest ./test/test_result.py
+  - python -m unittest ./test/test_cont.py
