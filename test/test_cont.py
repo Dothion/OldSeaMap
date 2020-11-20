@@ -18,7 +18,7 @@ class ContTestCase(unittest.TestCase):
                     lambda exit2: (
                         cond(x == 2, exit2((x * 2, 'exit2')), Cont((x - 3, 'end')))))))))
         safe_div = (lambda y: lambda x: call_cc(
-            lambda err: (err('Error: Divide by zero.') if y == 0 else Cont(x / y))))
+            lambda err: err('Error: Divide by zero.') if y == 0 else Cont(x / y)))
 
         self.assertEqual(Cont(5).bind(func1), Cont(-1))
         self.assertEqual(Cont(4).bind(func1), Cont(5))
