@@ -11,7 +11,9 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - bash <(curl -s https://codecov.io/bash)
   - python -m unittest test.test_maybe
   - python -m unittest test.test_result
   - python -m unittest test.test_cont
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
