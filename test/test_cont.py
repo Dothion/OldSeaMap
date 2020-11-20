@@ -2,7 +2,7 @@ import unittest
 
 from funcy import identity
 
-from OldSeaMap.cont import Cont
+from OldSeaMap.cont import Cont, call_cc
 
 
 class ContTestCase(unittest.TestCase):
@@ -11,13 +11,13 @@ class ContTestCase(unittest.TestCase):
 
     def test_call_cc(self):
         cond = lambda k, a, b: a if k else b  # !No short circuit eval
-        func1 = lambda x: Cont.call_cc(lambda ext: ext(-1) if x == 5 else Cont(5))
-        func2 = (lambda x: Cont.call_cc(
+        func1 = lambda x: call_cc(lambda ext: ext(-1) if x == 5 else Cont(5))
+        func2 = (lambda x: call_cc(
             lambda exit1: (
-                cond(x == 1, exit1((x + 1, 'exit1')), Cont.call_cc(
+                cond(x == 1, exit1((x + 1, 'exit1')), call_cc(
                     lambda exit2: (
                         cond(x == 2, exit2((x * 2, 'exit2')), Cont((x - 3, 'end')))))))))
-        safe_div = (lambda y: lambda x: Cont.call_cc(
+        safe_div = (lambda y: lambda x: call_cc(
             lambda err: (err('Error: Divide by zero.') if y == 0 else Cont(x / y))))
 
         self.assertEqual(Cont(5).bind(func1), Cont(-1))

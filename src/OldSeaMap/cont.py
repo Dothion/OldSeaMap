@@ -16,6 +16,10 @@ from .typeclasses.monad import Monad
 _SometimesCallable = Union[Callable, _a]
 
 
+def call_cc(func: Callable[[Callable[[_a], Cont[_r, _b]]], Cont[_r, _a]]) -> Cont[_r, _a]:
+    return Cont(lambda c: curry(func)(lambda a: Cont(lambda _: c(a)).run(identity)).run(c))
+
+
 class Cont(Monad[_a]):
     def __init__(self: Cont[_r, _a], something: _a):
         self._composing = lambda k: k(something if not isinstance(something, Callable) else curry(something))
@@ -30,12 +34,10 @@ class Cont(Monad[_a]):
     def of(cls, something: _SometimesCallable[_a]) -> Cont[_r, _SometimesCallable[_a]]:
         return Cont(something)
 
-    @staticmethod
-    def call_cc(func: Callable[[Callable[[_a], Cont[_r, _b]]], Cont[_r, _a]]) -> Cont[_r, _a]:
-        return Cont(lambda c: curry(func)(lambda a: Cont(lambda _: c(a)).run(identity)).run(c))
-
     def __eq__(self: Cont[_r, _a], other: Cont[_r, _b]) -> bool:
         return self.run(identity) == other.run(identity)
 
     def __repr__(self):
         return f'<Cont {self.run(identity)}>'
+
+    call_cc = staticmethod(call_cc)
