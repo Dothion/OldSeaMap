@@ -13,6 +13,6 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - python -m unittest test/test_maybe.py
-  - python -m unittest test/test_result.py
-  - python -m unittest test/test_cont.py
+  - python -m unittest test.test_maybe
+  - python -m unittest test.test_result
+  - python -m unittest test.test_cont
